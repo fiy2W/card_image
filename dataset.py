@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from decoder import static_dict, setcode_dict, bincode_trans, setcode_trans
+from .decoder import static_dict, setcode_dict, bincode_trans, setcode_trans
 
 
 """ Basic dataset only generate image """
@@ -45,7 +45,7 @@ class BasicDataset(Dataset):
 
     def load_datadict(self):
         """ Load the full data dict """
-        with open('dict.json', 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), 'dict.json'), 'r') as f:
             data_dict = json.load(f)
             return data_dict
     
@@ -107,15 +107,16 @@ class MonsterDataset(BasicDataset):
     
     def search_monster(self, v):
         typelist = bincode_trans(v['type'], 'type')
-        if '怪兽' in typelist:
+        # 去除没有种族和属性的衍生物
+        if '怪兽' in typelist and v['race']>0 and v['attribute']>0:
             return True
         else:
             return False
 
 
 data_transform = transforms.Compose([
-    transforms.RandomResizedCrop(224, scale=(0.75, 1.0)),
+    transforms.RandomResizedCrop(320, scale=(0.9, 1.0)),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
-    transforms.Normalize(0.5, 0.5),
+    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
 ])

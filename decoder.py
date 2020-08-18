@@ -1,3 +1,4 @@
+import os
 import math
 
 
@@ -56,7 +57,8 @@ static_dict = {
 }
 
 
-setcode_dict = make_setcode_dict(read_conf('strings.conf'))
+setcode_dict = make_setcode_dict(read_conf(
+    os.path.join(os.path.dirname(__file__), 'strings.conf')))
 
 
 def log_decode(code):
