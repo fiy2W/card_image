@@ -11,7 +11,7 @@ from .decoder import static_dict, setcode_dict, bincode_trans, setcode_trans
 
 """ Basic dataset only generate image """
 class BasicDataset(Dataset):
-    def __init__(self, img_dir, transform=None):
+    def __init__(self, img_dir, item_list=[], transform=None):
         """ Need to be overloading
 
             data_dict:    a dict of data
@@ -27,6 +27,7 @@ class BasicDataset(Dataset):
         self.setcode_dict = setcode_dict
 
         self.data_list = list(self.data_dict.values())
+        self.item_list = item_list
         self.data_transform = transform
     
     def __len__(self):
@@ -41,6 +42,8 @@ class BasicDataset(Dataset):
             img = self.data_transform(img)
 
         sample = {'image': img}
+        for item in self.item_list:
+            sample[item] = v[item]
         return sample
 
     def load_datadict(self):
@@ -84,7 +87,7 @@ class BasicDataset(Dataset):
 
 """ Monster dataset generate image with label of race and attribute """
 class MonsterDataset(BasicDataset):
-    def __init__(self, img_dir, transform=None):
+    def __init__(self, img_dir, item_list=['race', 'attribute'], transform=None):
         self.img_dir = img_dir
 
         self.data_dict = self.dict_search(self.load_datadict(), self.search_monster)
@@ -92,6 +95,7 @@ class MonsterDataset(BasicDataset):
         self.setcode_dict = setcode_dict
 
         self.data_list = list(self.data_dict.values())
+        self.item_list = item_list
         self.data_transform = transform
     
     def __getitem__(self, index):
@@ -102,7 +106,9 @@ class MonsterDataset(BasicDataset):
         if self.data_transform is not None:
             img = self.data_transform(img)
 
-        sample = {'image': img, 'race': v['race'], 'attribute': v['attribute']}
+        sample = {'image': img}
+        for item in self.item_list:
+            sample[item] = v[item]
         return sample
     
     def search_monster(self, v):
