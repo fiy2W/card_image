@@ -46,10 +46,11 @@ def make_dict(data_raw):
 
 if __name__ == '__main__':
     db_path = 'cards.cdb'
-    pic_path = 'pics/'
     dict_path = 'dict.json'
-    save_path = 'im/'
-    mkdir(save_path)
+    pic_root = 'pics/'
+    save_root = 'im/'
+    update = True
+    mkdir(save_root)
 
     res = select_db(db_path)
     cards = {}
@@ -57,7 +58,14 @@ if __name__ == '__main__':
     for r in res:
         card = make_dict(r)
         cards[card['id']] = card
-        im_card = imread(os.path.join(pic_path, '{}.jpg'.format(card['id'])))
+
+        save_path = os.path.join(save_root, '{}.png'.format(card['id']))
+
+        if os.path.exists(save_path):
+            if update:
+                continue
+
+        im_card = imread(os.path.join(pic_root, '{}.jpg'.format(card['id'])))
         if card['type'][-25] == '1': # pendulum
             x = 28
             y = 104
@@ -69,7 +77,7 @@ if __name__ == '__main__':
             w = 302
             h = 302
         im = im_card[y:y+h, x:x+w, :]
-        imsave(os.path.join(save_path, '{}.png'.format(card['id'])), im)
+        imsave(save_path, im)
 
     with open(dict_path, 'w') as f:
         json.dump(cards, f, ensure_ascii=True)
